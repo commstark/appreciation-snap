@@ -204,35 +204,17 @@ export async function POST(req: Request) {
   const baseUrl = getBaseUrl(req)
   const body = await req.json()
 
-  // Debug: return the raw body as a snap so we can see what Farcaster sends
-  const debugSnap = {
-    version: '2.0',
-    theme: { accent: 'teal' },
-    ui: {
-      root: 'page',
-      elements: {
-        page: {
-          type: 'stack',
-          props: { direction: 'vertical', gap: 'sm' },
-          children: ['debug-title', 'debug-body'],
-        },
-        'debug-title': {
-          type: 'text',
-          props: { content: 'POST body received:', weight: 'bold', size: 'sm' },
-        },
-        'debug-body': {
-          type: 'text',
-          props: { content: JSON.stringify(body).slice(0, 320), size: 'sm' },
-        },
-      },
-    },
+  // Decode JFS payload — Farcaster sends { header, payload, signature } with base64-encoded fields
+  let data = body
+  if (body?.payload && typeof body.payload === 'string') {
+    try {
+      data = JSON.parse(Buffer.from(body.payload, 'base64').toString())
+    } catch {
+      data = body
+    }
   }
-  return snapResponse(debugSnap)
 
-  // Try multiple possible locations for the feeling input
-  const feeling = body?.inputs?.feeling
-    || body?.payload?.inputs?.feeling
-    || body?.body?.payload?.inputs?.feeling
+  const feeling = data?.inputs?.feeling
 
   if (!feeling || typeof feeling !== 'string' || feeling.length > 200) {
     return snapResponse(inputSnap(baseUrl))
