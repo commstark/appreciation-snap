@@ -145,7 +145,7 @@ function replySnap(baseUrl: string, feeling: string, reply: string) {
             press: {
               action: 'compose_cast',
               params: {
-                text: `i said i was feeling ${feeling}\n\nappreciation snap said:\n${reply}`,
+                text: `i said i was feeling ${feeling}\n\nappreciation snap said:\n\n${reply}\n\n`,
                 embeds: [baseUrl],
               },
             },
