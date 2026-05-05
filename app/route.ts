@@ -203,7 +203,14 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const baseUrl = getBaseUrl(req)
   const body = await req.json()
+
+  // Log the full POST body to diagnose structure
+  console.log('POST body:', JSON.stringify(body, null, 2))
+
+  // Try multiple possible locations for the feeling input
   const feeling = body?.inputs?.feeling
+    || body?.payload?.inputs?.feeling
+    || body?.body?.payload?.inputs?.feeling
 
   if (!feeling || typeof feeling !== 'string' || feeling.length > 200) {
     return snapResponse(inputSnap(baseUrl))
